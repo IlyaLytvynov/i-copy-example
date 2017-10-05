@@ -12,7 +12,7 @@ const plumber = require('gulp-plumber');
 
 const dirs = {
   src: 'src',
-  dest: 'build'
+  dest: 'docs'
 };
 
 const paths = {
@@ -32,7 +32,7 @@ gulp.task('styles', () => {
 
 gulp.task('server', () => {
   connect.server({
-    root: 'build',
+    root: dirs.dest,
     port: 3001,
     livereload: true
   });
@@ -45,7 +45,7 @@ gulp.task('html', () => {
 });
 
 gulp.task('inject', ['styles'], () => {
-  let target = gulp.src('./build/index.html');
+  let target = gulp.src(`./${dirs.dest}/index.html`);
   let sources = gulp.src([
     `${paths.dest}*.css`
   ], {read: true});
@@ -58,10 +58,17 @@ gulp.task('inject', ['styles'], () => {
 });
 
 gulp.task('assets', () => {
-  return gulp.src(['assets/**/*.png', 'assets/**/*.jpg', 'assets/**/*.svg'])
+  return gulp.src(['assets/**/*.png', 'assets/**/*.jpg', 'assets/**/*.svg', 'assets/**/*.ico'])
     .pipe(gulp.dest(`${dirs.dest}/assets`))
     .pipe(connect.reload());
 });
+
+gulp.task('fonts', () => {
+  return gulp.src(['assets/**/*.woff2', 'assets/**/*.ttf', 'assets/**/*.woff'])
+    .pipe(gulp.dest(`${dirs.dest}/assets`))
+    .pipe(connect.reload());
+});
+
 
 gulp.task('clean', () => {
   return gulp.src([
@@ -82,6 +89,17 @@ gulp.task('dev', ['clean'], () => {
     'html',
     'inject',
     'assets',
+    'fonts',
     'watch'
+  );
+});
+
+gulp.task('build', ['clean'], () => {
+  gulp.run(
+    'styles',
+    'html',
+    'inject',
+    'assets',
+    'fonts'
   );
 });
